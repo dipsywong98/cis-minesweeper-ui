@@ -25,7 +25,7 @@ const getPad = (binLen) => {
 }
 
 const serializeBinaryString = (bin) => {
-  const pad = getPad(bin)
+  const pad = getPad(bin.length)
   return window.btoa(
       (bin+pad)
         .match(/(.{8})/g)
@@ -43,8 +43,7 @@ const deserializeBinaryString = (b64) => {
       return ('0000000' + x.charCodeAt(0).toString(2)).slice(-8);
     })
     .join('');
-  const pad = getPad(bin.length)
-  return bin.replace(RegExp(`${pad}$`), '')
+  return bin
 }
 
 //   ceils: Array {
@@ -58,11 +57,13 @@ export const serialize = (rows, cols, ceils) => {
 }
 
 export const deserialize = packed => {
-  const [rowsS, colsS, flags] = packed.split(',')
+  const [rowsS, colsS, flagsS] = packed.split(',')
   const rows = Number.parseInt(rowsS)
   const cols = Number.parseInt(colsS)
+  const pad = getPad(rows * cols)
+  const flags = deserializeBinaryString(flagsS)
   const mineK = []
-  const ceils = deserializeBinaryString(flags).split('').map((flag, k) => {
+  const ceils = flags.replace(RegExp(`${pad}$`), '').split('').map((flag, k) => {
     if (flag === '1') {
       mineK.push(k)
     }

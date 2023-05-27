@@ -158,7 +158,6 @@ function MineSweeperView({
         });
       }
     } else {
-      console.log(e.buttons)
       if (e.buttons === 1) {
         setOpenBehavior({
           index,

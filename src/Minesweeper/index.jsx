@@ -46,7 +46,6 @@ function getInitState(difficulty = 'Beginner', dimension = {}) {
 function reducer(state, action = {}) {
   switch (action.type) {
     case 'CLEAR_MAP':
-      console.log(action)
       return getInitState(action.payload?.difficulty ?? state.difficulty, action.payload?.dimension ?? {})
     case 'START_GAME':
       return {
@@ -310,7 +309,6 @@ function MineSweeper({
 }
 
 function genGameConfig(config) {
-  console.trace(config)
   const { rows, columns, mines } = config
   const ceils = Array(rows * columns)
     .fill()
@@ -328,7 +326,6 @@ function genGameConfig(config) {
 }
 
 function insertMines(config, originCeils) {
-  console.log('start')
   if (window.location.hash === '') {
     const { rows, columns, mines, exclude } = config
     const ceils = originCeils.map(ceil => ({ ...ceil }))
