@@ -1,3 +1,5 @@
+import { deserialize } from "./helper";
+
 export const Config = {
   Beginner: {
     rows: 9,
@@ -22,5 +24,6 @@ export const Config = {
     columns: 30,
     ceils: 480,
     mines: 0,
-  }
+  },
+  Custom: deserialize(window.location.hash.replace('#', ''))
 };

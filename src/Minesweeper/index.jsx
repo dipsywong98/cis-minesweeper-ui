@@ -1,9 +1,9 @@
-import React, { useReducer, useEffect, useState } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import sampleSize from 'lodash.samplesize'
 
 import { Config } from './config'
 import MinesweeperView from './MinesweeperView'
-import { deserialize, getNearIndexes } from './helper'
+import { getNearIndexes } from './helper'
 
 // state: {
 //   difficulty: 'Beginner' || 'Intermediate' || 'Expert' || 'Create',
@@ -29,13 +29,11 @@ function getInitState(difficulty = 'Beginner') {
 function reducer(state, action = {}) {
   switch (action.type) {
     case 'CLEAR_MAP':
-      const difficulty = action.payload || state.difficulty
-      return getInitState(difficulty)
+      return getInitState(action.payload || state.difficulty)
     case 'START_GAME':
-      const exclude = action.payload
       return {
         ...state,
-        ...insertMines({ ...Config[state.difficulty], exclude }, state.ceils),
+        ...insertMines({ ...Config[state.difficulty], exclude: action.payload }, state.ceils),
         status: 'started',
       }
     case 'OPEN_CEIL': {
@@ -194,7 +192,7 @@ function MineSweeper({
         dispatch({ type: 'START_GAME', payload: index })
         dispatch({ type: 'OPEN_CEIL', payload: index })
         break
-      case 'started':
+      case 'started':{
         const ceil = state.ceils[index]
         if (['flag', 'open'].includes(ceil.state)) {
           break
@@ -204,6 +202,7 @@ function MineSweeper({
           dispatch({ type: 'OPEN_CEIL', payload: index })
         }
         break
+      }
       default:
         console.log(state.status)
     }
@@ -285,20 +284,23 @@ function MineSweeper({
 }
 
 function genGameConfig(config) {
-  const { rows, columns, mines } = config
-  const ceils = Array(rows * columns)
-    .fill()
-    .map(_ => ({
-      state: 'cover',
-      minesAround: 0,
-      opening: false,
-    }))
-  return {
-    rows,
-    columns,
-    ceils,
-    mines,
+  if (typeof config === 'string') {
+    const { rows, columns, mines } = config
+    const ceils = Array(rows * columns)
+      .fill()
+      .map(() => ({
+        state: 'cover',
+        minesAround: 0,
+        opening: false,
+      }))
+    return {
+      rows,
+      columns,
+      ceils,
+      mines,
+    }
   }
+  return config
 }
 
 function insertMines(config, originCeils) {
@@ -322,7 +324,7 @@ function insertMines(config, originCeils) {
       mines,
     }
   } else {
-    return deserialize(window.location.hash.replace('#', ''))
+    return config
   }
 }
 

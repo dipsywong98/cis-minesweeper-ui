@@ -65,7 +65,7 @@ function App() {
         }
       >
         <Minesweeper
-          defaultDifficulty={window.location.hash === '' ? 'Beginner' : 'Expert'}
+          defaultDifficulty={window.location.hash === '' ? 'Beginner' : 'Custom'}
           sameTouchPos={samePos}
           lastTouch={lastTouch}
           platform={platform}

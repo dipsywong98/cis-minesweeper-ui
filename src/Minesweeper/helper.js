@@ -1,5 +1,3 @@
-import LZUTF8 from 'lzutf8'
-
 export function getNearIndexes(index, rows, columns) {
   if (index < 0 || index >= rows * columns) return []
   const row = Math.floor(index / columns)
@@ -22,6 +20,26 @@ export function getNearIndexes(index, rows, columns) {
   })
 }
 
+const serializeBinaryString = (bin) => {
+  return window.btoa(
+      bin
+        .match(/(.{8})/g)
+        .map(function (x) {
+          return String.fromCharCode(parseInt(x, 2));
+        })
+        .join('')
+    );
+}
+
+const deserializeBinaryString = (b64) => {
+  return window.atob(b64)
+    .split('')
+    .map(function (x) {
+      return ('0000000' + x.charCodeAt(0).toString(2)).slice(-8);
+    })
+    .join('');
+}
+
 //   ceils: Array {
 //     state: 'cover' || 'flag' || 'unknown' || 'open' || 'die' || 'misflagged' || 'mine',
 //     minesAround: Number (negative for mine itself),
@@ -29,15 +47,15 @@ export function getNearIndexes(index, rows, columns) {
 //   }
 export const serialize = (rows, cols, ceils) => {
   const flags = ceils.map(({ state }) => state === 'mine' ? '1' : '0').join('')
-  return LZUTF8.compress([rows, cols, flags].join(','), { outputEncoding: 'Base64' })
+  return [rows, cols, serializeBinaryString(flags)].join(',')
 }
 
 export const deserialize = packed => {
-  const [rowsS, colsS, flags] = LZUTF8.decompress(packed, { inputEncoding: 'Base64' }).split(',')
+  const [rowsS, colsS, flags] = packed.split(',')
   const rows = Number.parseInt(rowsS)
   const cols = Number.parseInt(colsS)
   const mineK = []
-  const ceils = flags.split('').map((flag, k) => {
+  const ceils = deserializeBinaryString(flags).split('').map((flag, k) => {
     if (flag === '1') {
       mineK.push(k)
     }

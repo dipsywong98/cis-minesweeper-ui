@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import dead from '../assets/dead.png';
 import smile from '../assets/smile.png';
@@ -143,7 +143,7 @@ function MineSweeperView({
     }
   }, [openBehavior.index, openBehavior.behavior]);
   function onMouseDownCeils(e, index) {
-    if(['Beginner', 'Intermediate', 'Expert'].includes(difficulty)) {
+    if(['Beginner', 'Intermediate', 'Expert', 'Custom'].includes(difficulty)) {
       if (e.button === 2 && e.buttons === 2 && index !== -1) {
         changeCeilState(index);
       } else if (e.button === 0 && e.buttons === 1) {
@@ -474,7 +474,6 @@ function Ceils({ ceils, onMouseDown, onMouseEnter }) {
       onMouseEnter={() => onMouseEnter(index)}
       onMouseDown={e => onMouseDown(e, index)}
       className="mine__ceil"
-      index={index}
     >
       {renderContent(ceil)}
     </div>
