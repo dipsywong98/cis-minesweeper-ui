@@ -20,9 +20,14 @@ export function getNearIndexes(index, rows, columns) {
   })
 }
 
+const getPad = (binLen) => {
+  return Array(Math.ceil(binLen / 8) * 8 - binLen).fill('0').join('');
+}
+
 const serializeBinaryString = (bin) => {
+  const pad = getPad(bin)
   return window.btoa(
-      bin
+      (bin+pad)
         .match(/(.{8})/g)
         .map(function (x) {
           return String.fromCharCode(parseInt(x, 2));
@@ -32,12 +37,14 @@ const serializeBinaryString = (bin) => {
 }
 
 const deserializeBinaryString = (b64) => {
-  return window.atob(b64)
+  const bin = window.atob(b64)
     .split('')
     .map(function (x) {
       return ('0000000' + x.charCodeAt(0).toString(2)).slice(-8);
     })
     .join('');
+  const pad = getPad(bin.length)
+  return bin.replace(RegExp(`${pad}$`), '')
 }
 
 //   ceils: Array {
@@ -70,6 +77,7 @@ export const deserialize = packed => {
     })
   })
   return {
+    isCustom: true,
     rows,
     columns: cols,
     ceils,

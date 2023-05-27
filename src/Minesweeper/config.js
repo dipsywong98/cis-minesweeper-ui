@@ -20,10 +20,8 @@ export const Config = {
     mines: 99,
   },
   Create: {
-    rows: 16,
-    columns: 30,
     ceils: 480,
     mines: 0,
   },
-  Custom: deserialize(window.location.hash.replace('#', ''))
+  Custom: window.location.hash !== '' && deserialize(window.location.hash.replace('#', ''))
 };

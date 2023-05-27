@@ -18,7 +18,24 @@ import { getNearIndexes } from './helper'
 //   }
 // }
 
-function getInitState(difficulty = 'Beginner') {
+const promptInt = (message) => {
+  let num = null
+  while (typeof num !== 'number' || !Number.isInteger(num) || num < 0) {
+    const input = window.prompt(message)
+    num = parseInt(input)
+  }
+  return num
+}
+  
+
+function getInitState(difficulty = 'Beginner', dimension = {}) {
+  if (difficulty === 'Create') {
+    return {
+      difficulty,
+      status: 'new',
+      ...genGameConfig({...Config[difficulty], ...dimension}),
+    }
+  }
   return {
     difficulty,
     status: 'new',
@@ -29,7 +46,8 @@ function getInitState(difficulty = 'Beginner') {
 function reducer(state, action = {}) {
   switch (action.type) {
     case 'CLEAR_MAP':
-      return getInitState(action.payload || state.difficulty)
+      console.log(action)
+      return getInitState(action.payload?.difficulty ?? state.difficulty, action.payload?.dimension ?? {})
     case 'START_GAME':
       return {
         ...state,
@@ -176,7 +194,8 @@ function MineSweeper({
                      }) {
   const [state, dispatch] = useReducer(
     reducer,
-    getInitState(defaultDifficulty),
+    {},
+    () => getInitState(defaultDifficulty),
   )
   const seconds = useTimer(state.status)
 
@@ -240,7 +259,14 @@ function MineSweeper({
   })
 
   function onReset(difficulty) {
-    dispatch({ type: 'CLEAR_MAP', payload: difficulty })
+    if (difficulty !== 'Create') {
+      dispatch({ type: 'CLEAR_MAP', payload: { difficulty } })
+    } else {
+      dispatch({ type: 'CLEAR_MAP', payload: { difficulty, dimension: {
+        columns: promptInt('input columns'),
+        rows: promptInt('input rows'),
+      } } })
+    }
   }
 
   function checkRemains() {
@@ -284,23 +310,21 @@ function MineSweeper({
 }
 
 function genGameConfig(config) {
-  if (typeof config === 'string') {
-    const { rows, columns, mines } = config
-    const ceils = Array(rows * columns)
-      .fill()
-      .map(() => ({
-        state: 'cover',
-        minesAround: 0,
-        opening: false,
-      }))
-    return {
-      rows,
-      columns,
-      ceils,
-      mines,
-    }
+  console.trace(config)
+  const { rows, columns, mines } = config
+  const ceils = Array(rows * columns)
+    .fill()
+    .map(() => ({
+      state: 'cover',
+      minesAround: 0,
+      opening: false,
+    }))
+  return {
+    rows,
+    columns,
+    ceils: config.isCustom ? config.ceils : ceils,
+    mines,
   }
-  return config
 }
 
 function insertMines(config, originCeils) {
