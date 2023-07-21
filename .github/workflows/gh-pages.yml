@@ -3,6 +3,9 @@
 
 name: gh-pages
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ master ]
@@ -35,7 +38,7 @@ jobs:
 
       - run: yarn install --frozen-lockfile
       - run: yarn build
-      
+
       - if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3
         with:
