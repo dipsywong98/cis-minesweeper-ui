@@ -1,3 +1,5 @@
+import * as LZUTF8 from 'lzutf8'
+
 export function getNearIndexes(index, rows, columns) {
   if (index < 0 || index >= rows * columns) return []
   const row = Math.floor(index / columns)
@@ -53,11 +55,11 @@ const deserializeBinaryString = (b64) => {
 //   }
 export const serialize = (rows, cols, ceils) => {
   const flags = ceils.map(({ state }) => state === 'mine' ? '1' : '0').join('')
-  return [rows, cols, serializeBinaryString(flags)].join(',')
+  return LZUTF8.compress([rows, cols, serializeBinaryString(flags)].join(','), {outputEncoding: 'Base64'})
 }
 
 export const deserialize = packed => {
-  const [rowsS, colsS, flagsS] = packed.split(',')
+  const [rowsS, colsS, flagsS] = LZUTF8.decompress(packed, { inputEncoding: 'Base64' }).split(',')
   const rows = Number.parseInt(rowsS)
   const cols = Number.parseInt(colsS)
   const pad = getPad(rows * cols)
