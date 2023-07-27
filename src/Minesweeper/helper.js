@@ -1,4 +1,5 @@
 import * as LZUTF8 from 'lzutf8'
+import { Buffer } from "buffer";
 
 export function getNearIndexes(index, rows, columns) {
   if (index < 0 || index >= rows * columns) return []
@@ -28,18 +29,19 @@ const getPad = (binLen) => {
 
 const serializeBinaryString = (bin) => {
   const pad = getPad(bin.length)
-  return window.btoa(
-      (bin+pad)
+  const padded = bin+pad
+  return Buffer.from(
+      padded
         .match(/(.{8})/g)
-        .map(function (x) {
+        ?.map(function (x) {
           return String.fromCharCode(parseInt(x, 2));
         })
-        .join('')
-    );
+        .join('') ?? ''
+    ).toString('base64');
 }
 
-const deserializeBinaryString = (b64) => {
-  const bin = window.atob(b64)
+export const deserializeBinaryString = (b64) => {
+  const bin = Buffer.from(b64, 'base64').toString()
     .split('')
     .map(function (x) {
       return ('0000000' + x.charCodeAt(0).toString(2)).slice(-8);
